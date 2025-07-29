@@ -73,12 +73,12 @@ async function init() {
         .attr("fill", function(d) {return colorScale(d.Make); })
         .style("opacity", 1);
     
-    if (current === 3) {
+    if (current >= 3) {
       circles.on("click", function(d){
         d3.selectAll('.point')
         .filter(function(point){ return (point.Make != d.Make) })
         .transition()
-        .style("opacity", 0.01)
+        .style("opacity", 0)
         });
       
       circles.on("dblclick", function(d){
