@@ -1,49 +1,119 @@
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<style> circle {fill: rgb(191, 230, 173); stroke: black;} </style>
+
+<style> circle { stroke: black; }
+  .legend rect { width: 12px; height: 12px; }
+  .legend text { font-size: 12px; alignment-baseline: middle; } 
+  button {padding: 5px 10px; }
+</style>
+
 <body onload='init()'>
-    <h1 style="text-align:center;">Car MPG Narrative Visualization</h1>
-<svg width=600 height=600>
+<h1 style="text-align:center;">Car MPG Narrative Visualization</h1>
+
+<button id="scene1">1</button>
+<button id="scene2">2</button>
+<button id="scene3">3</button>
+<button id="next">Next</button>
+
+
+<svg width=800 height=600>
 </svg>
 <script>
 
 async function init() {
-const data = await d3.csv("cars2017updated.csv");
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
-    const width = 500;
-    const height = 500;
+  const data = await d3.csv("cars2017updated.csv");
 
+  var brands = ["Audi", "BMW", "Cadillac", "Chevrolet", "Chrysler", 
+  "Dodge", "Ford", "GMC", "Infiniti", "Jaguar", "Jeep", "Kia", "Land Rover", "Lexus",
+  "Mercedes-Benz", "Nissan", "Porsche", "Ram", "Toyota"]
 
-  var x = d3.scaleLog().base(10).domain([10, 150]).range([0, width]);
-  var y = d3.scaleLog().base(10).domain([10, 150]).range([height, 0]);
+  var colorScale = d3.scaleOrdinal()
+    .domain(brands)
+    .range(["red", "green", "blue", "#800010", "#9A6324", "#808000", "#469990", "#000075"
+    ,"#f58231","#ffe119","#bfef45","#42d4f4","#f032e6","#dcbeff","#aaffc3","#fabed4","#911eb4"
+    ,"#fffac8","#a9a9a9"]);
 
-  svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .selectAll("circle")
-    .data(data)
-    .enter()
-    .append("circle")
-      .attr("cx", function(d) { return x(+d.AverageCityMPG); })
-      .attr("cy", function(d) { return y(+d.AverageHighwayMPG); })
-      .attr("r", 5);
+  var x = d3.scaleLinear().domain([10, 40]).range([0, 700]);
+  var y = d3.scaleLinear().domain([10, 40]).range([500, 0]);
 
-  svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .call(
-      d3.axisLeft(y)
-        .tickValues([10, 20, 50, 100])
-        .tickFormat(d3.format("~s"))
+  let current = 1;
+  d3.select("#scene1").on("click", function() { current = 1; drawScene();});
+  d3.select("#scene2").on("click", function() { current = 2; drawScene(); });
+  d3.select("#scene3").on("click", function() { current = 3; drawScene(); });
+  d3.select("#next").on("click", function() { current = current + 1; drawScene(); });
+
+  function drawScene() {
+    var filtered = 0;
+    let filteredOn = false
+    if (current === 1) {
+      filtered = data.filter(function(d) { return d.EngineCylinders === "4"; })
+    } 
+    else if (current === 2) {
+      filtered = data.filter(function(d) { return d.EngineCylinders === "4" || d.EngineCylinders === "6"; })
+    } 
+    else {
+      filtered = data;
+    }
+
+    d3.select("svg").html("");
+  
+    const circles = d3.select("svg")
+      .attr("width", 700+2*50)
+      .attr("height", 500+2*50)
+      .append("g")
+      .attr("transform", "translate(50,50)")
+      .selectAll(".point")
+      .data(filtered)
+      .enter()
+      .append("circle")
+        .attr("class", "point")
+        .attr("cx", function(d) { return x(d.AverageCityMPG); })
+        .attr("cy", function(d) { return y(d.AverageHighwayMPG); })
+        .attr("r", 6)
+        .attr("fill", function(d) {return colorScale(d.Make); })
+        .style("opacity", 1);
+    
+    if (current === 3) {
+      circles.on("click", function(d){
+        d3.selectAll('.point')
+        .filter(function(point){ return (point.Make != d.Make) })
+        .transition()
+        .style("opacity", 0.01)
+        });
+      
+      circles.on("dblclick", function(d){
+        d3.selectAll('.point')
+          .transition()
+          .style("opacity", 1)
+      });
+    }
+
+    d3.select("svg")
+      .append("g")
+      .attr("transform", "translate(50,50)")
+        .call(d3.axisLeft(y).ticks(6).tickFormat(d3.format("~s"))
     );
 
-  svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + (margin.top + height) + ")")
-    .call(
-      d3.axisBottom(x)
-        .tickValues([10, 20, 50, 100])
-        .tickFormat(d3.format("~s"))
+    d3.select("svg")
+      .append("g")
+      .attr("transform", "translate(50,550)")
+        .call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("~s"))
     );
+    
+    var legend = d3.select("svg").append("g")
+      .attr("class", "legend")
+      .attr("transform", "translate(700,50)");
+      brands.forEach(function(b,i) {
+        var row = legend.append("g")
+          .attr("transform","translate(0," + i*20 + ")");
+          row.append("rect").attr("fill", colorScale(b));
+          row.append("text").attr("x",18).attr("y",6).text(b);
+      });
+  }
+  drawScene();
 }
 
+init();
 
 </script>
 </body>
