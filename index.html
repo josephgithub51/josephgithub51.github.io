@@ -54,7 +54,9 @@ async function init() {
     }
 
     d3.select("svg").html("");
+
   
+    //creating the points
     const circles = d3.select("svg")
       .attr("width", 700+2*50)
       .attr("height", 500+2*50)
@@ -71,6 +73,7 @@ async function init() {
         .attr("fill", function(d) {return colorScale(d.Make); })
         .style("opacity", 1);
     
+    //user interaction
     if (current >= 3) {
       circles.on("click", function(d){
         d3.selectAll('.point')
@@ -86,6 +89,7 @@ async function init() {
       });
     }
 
+    //scene 1 annotations
     if (current === 1) {
       d3.select("svg")
         .append("text")
@@ -120,6 +124,7 @@ async function init() {
         .text("right, indicating an overall high city and highway MPG.")
     }
 
+    //scene 2 annotations
     if (current === 2) {
       d3.select("svg")
         .append("text")
@@ -162,6 +167,7 @@ async function init() {
         .text("indicating medium city and highway MPG.")
     }
 
+    //scene 3 annotations
     if (current >= 3) {
       d3.select("svg")
         .append("text")
@@ -238,28 +244,64 @@ async function init() {
       setTimeout(() => {
         d3.select("svg")
           .append("text")
-          .attr("x", 150)
+          .attr("x", 450)
+          .attr("y", 80)
+          .style("font-size", "12px")
+          .style("font-weight", "bold")
+          .text("Overall, we can see that a 4 cylinder Toyota")
+
+        d3.select("svg")
+          .append("text")
+          .attr("x", 450)
           .attr("y", 100)
           .style("font-size", "12px")
           .style("font-weight", "bold")
-          .text("Overall, we can see that a 4 cylinder Toyota will give you the best average MPG for both highways and cities!")
-      }, 2000);
+          .text("will give you the best average MPG for")
+
+        d3.select("svg")
+          .append("text")
+          .attr("x", 450)
+          .attr("y", 120)
+          .style("font-size", "12px")
+          .style("font-weight", "bold")
+          .text("both highways and cities.")
+      }, 10000);
+
+      setTimeout(() => {
+        d3.select("svg")
+          .append("text")
+          .attr("x", 70)
+          .attr("y", 450)
+          .style("font-size", "12px")
+          .style("font-weight", "bold")
+          .text("While a 6 cylinder Ford")
+
+        d3.select("svg")
+          .append("text")
+          .attr("x", 70)
+          .attr("y", 470)
+          .style("font-size", "12px")
+          .style("font-weight", "bold")
+          .text("gives the lowest average MPG")
+      }, 12000);
       
     }
     
-
+    //y-axis
     d3.select("svg")
       .append("g")
       .attr("transform", "translate(50,50)")
         .call(d3.axisLeft(y).ticks(6).tickFormat(d3.format("~s"))
     );
 
+    //x-axis
     d3.select("svg")
       .append("g")
       .attr("transform", "translate(50,550)")
         .call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("~s"))
     );
     
+    //legend
     var legend = d3.select("svg").append("g")
       .attr("class", "legend")
       .attr("transform", "translate(700,50)");
@@ -269,6 +311,23 @@ async function init() {
           row.append("rect").attr("fill", colorScale(b));
           row.append("text").attr("x",18).attr("y",6).text(b);
       });
+
+    //axis titles
+    d3.select("svg")
+      .append("text")
+      .attr("x", 650)
+      .attr("y", 580)
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .text("Average City MPG")
+
+    d3.select("svg")
+      .append("text")
+      .attr("x", 5)
+      .attr("y", 40)
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .text("Average Highway MPG")
 
     
   }
